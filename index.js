@@ -1,13 +1,17 @@
 const dotenv = require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
+
 
 const app = express()
 const port = process.env.PORT || 3001
 
 //local imports
 const connectDB = require('./config/db');
+const userRouter = require('./routes/user-route');
 
+app.use(cors())
 app.use(express.json())
 app.use(morgan('dev'))
 
@@ -17,6 +21,9 @@ app.get("/home", (req, res) => {
         message: "welcome to paytm wallet applicaion💸"
     })
 })
+
+//routes
+app.use("/api/v1", userRouter)
 
 //connection to db
 connectDB()
