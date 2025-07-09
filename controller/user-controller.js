@@ -118,10 +118,36 @@ const updateUser = async(req, res) => {
 
 }
 
+
+const getUser = async(req, res) => {
+    const filter = req.query.filter || ""
+    const users = await User.find({
+        $or:[{
+            firstName: {
+                "$regex": filter
+            }
+        },{
+            lastName: {
+                "$regex": filter
+            }
+        }]
+    })
+
+    res.status(200).json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
+}
+
 module.exports = {
     registerUser,
     loginUser,
-    updateUser
+    updateUser,
+    getUser
 }
 
 
