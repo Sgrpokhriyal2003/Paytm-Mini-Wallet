@@ -10,6 +10,7 @@ const port = process.env.PORT || 3001
 //local imports
 const connectDB = require('./config/db');
 const userRouter = require('./routes/user-route');
+const accountRouter = require("./routes/account-route");
 
 app.use(cors())
 app.use(express.json())
@@ -24,6 +25,7 @@ app.get("/home", (req, res) => {
 
 //routes
 app.use("/api/v1", userRouter)
+app.use("/api/v1", accountRouter)
 
 //connection to db
 connectDB()

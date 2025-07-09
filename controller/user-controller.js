@@ -1,6 +1,7 @@
 const zod = require("zod")
 const {User} = require("../model/user");
-const jwt = require('jsonwebtoken')
+const { Account } = require("../model/bank");
+const jwt = require('jsonwebtoken');
 
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -36,6 +37,14 @@ const registerUser = async(req, res) => {
     })
 
     const userId = newUser._id
+
+    // --- create a new account --- //
+    await Account.create({
+        userId,
+        balance: 1 + Math.random() * 10000
+    })
+
+
     const token = jwt.sign({userId}, process.env.JWT_SECRET, {expiresIn: "24h"})
 
     res.status(201).json({
