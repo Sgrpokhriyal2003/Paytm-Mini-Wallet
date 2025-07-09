@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 
-const authorizaUser = (req, res, next) => {
+const authorizeUser = (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.authorization
     if(!authHeader || !authHeader.startsWith('Bearer')){
         return res.status(400).json({
@@ -26,5 +26,5 @@ const authorizaUser = (req, res, next) => {
 }
 
 module.exports = {
-    authorizaUser
+    authorizeUser
 }
