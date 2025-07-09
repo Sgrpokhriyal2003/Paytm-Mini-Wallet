@@ -52,6 +52,43 @@ const registerUser = async(req, res) => {
     }
 }
 
+const signinBody = zod.object({
+    username: zod.string().email(),
+    password: zod.string()
+})
+
+
+const loginUser = async(req, res) => {
+    try{
+        const {username, password} = req.body
+        const {success} = signinBody.safeParse(req.body)
+        if(!success){
+        return res.status(400).json({
+            message: 'invalid input fields!'
+          })
+        }
+
+        const user = await User.findOne({username, password})
+        if(!user){
+            return res.status(401).json({
+                message: "error while logging in!"
+            })
+        }
+
+        const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn:"24h"})
+        res.status(200).json({
+            accessToken: token
+        })
+        
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: "server side error!"
+        })
+    }
+}
 module.exports = {
-    registerUser
+    registerUser,
+    loginUser
 }
