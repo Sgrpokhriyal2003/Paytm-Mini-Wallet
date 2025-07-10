@@ -1,7 +1,9 @@
 const zod = require("zod")
+const bcrypt = require('bcryptjs')
 const {User} = require("../model/user");
 const { Account } = require("../model/bank");
 const jwt = require('jsonwebtoken');
+
 
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -77,13 +79,20 @@ const loginUser = async(req, res) => {
           })
         }
 
-        const user = await User.findOne({username, password})
+        const user = await User.findOne({username})
         if(!user){
-            return res.status(401).json({
-                message: "error while logging in!"
+            return res.status(404).json({
+                message: "error while logging in! user not found"
             })
         }
 
+        const isMatch = await bcrypt.compare(password, user.password)
+        if(!isMatch){
+            return res.status(401).json({
+                message: " error while logging in! incorrect username or password!"
+            })
+        }
+        
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn:"24h"})
         res.status(200).json({
             accessToken: token
@@ -129,15 +138,22 @@ const updateUser = async(req, res) => {
 
 
 const getUser = async(req, res) => {
-    const filter = req.query.filter || ""
+    const filter = req.query.filter
+    if(!filter || filter.trim() === ""){
+        return res.status(400).json({message: "filter query is required!"})
+    }
+    console.log(filter)
+
+
+    const regex = new RegExp(filter , "i")
     const users = await User.find({
         $or:[{
             firstName: {
-                "$regex": filter
+                "$regex": regex
             }
         },{
             lastName: {
-                "$regex": filter
+                "$regex": regex
             }
         }]
     })
